@@ -1,3 +1,9 @@
+using Amazon.Runtime;
+using InnAiServer.ApiClients;
+using InnAiServer.Data.Repositories;
+using InnAiServer.HostedServices;
+using InnAiServer.Options;
+using InnAiServer.Services;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
@@ -13,7 +19,7 @@ public class Startup
         _configuration = configuration;
     }
 
-    private string? MongoConnectionString => _configuration.GetConnectionString("DefaultConnection"); 
+    private string? MongoConnectionString => _configuration.GetConnectionString("MongoDb"); 
     
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
@@ -30,13 +36,11 @@ public class Startup
                 new MediaTypeApiVersionReader("x-api-version"));
         });
 
-
-        
-        
-        
-        
+        ConfigureOptions(services);
+        ConfigureCustomServices(services);
         ConfigureSwagger(services);
         ConfigureDatabase(services);
+        ConfigureHostedServices(services);
     }
 
     private void ConfigureSwagger(IServiceCollection services)
@@ -57,15 +61,38 @@ public class Startup
         });
     }
 
+    private void ConfigureOptions(IServiceCollection services)
+    {
+        services.Configure<RainRadarOptions>(_configuration.GetSection(nameof(RainRadarOptions)));
+        services.Configure<InnLevelOptions>(_configuration.GetSection(nameof(InnLevelOptions)));
+    }
+
     private void ConfigureDatabase(IServiceCollection services)
     {
-        services.AddSingleton<IMongoClient, MongoClient>(x => new MongoClient(MongoConnectionString));
+        services.AddScoped<IMongoClient, MongoClient>(x => new MongoClient(MongoConnectionString));
 
-        services.AddSingleton<IMongoDatabase>(x =>
+        services.AddScoped<IMongoDatabase>(x =>
         {
             var mongoClient = x.GetRequiredService<IMongoClient>();
             return mongoClient.GetDatabase("InnAi");
         });
+
+        services.AddScoped<IRainRadarRepository, RainRadarRepository>();
+        services.AddScoped<IInnLevelRepository, InnLevelRepository>();
+    }
+
+    private void ConfigureCustomServices(IServiceCollection services)
+    {
+        services.AddScoped<IRainRadarService, RainRadarService>();
+        services.AddScoped<IRainRadarClient, RainRadarClient>();
+        services.AddScoped<IInnLevelService, InnLevelService>();
+        services.AddScoped<IInnLevelClient, InnLevelClient>();
+    }
+
+    private void ConfigureHostedServices(IServiceCollection services)
+    {
+        services.AddHostedService<RainRadarHostedService>();
+        services.AddHostedService<InnLevelHostedService>();
     }
     
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
