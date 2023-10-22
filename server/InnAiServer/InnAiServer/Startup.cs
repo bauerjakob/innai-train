@@ -49,7 +49,7 @@ public class Startup
         {
             options.SwaggerDoc("v1", new OpenApiInfo {
                 Title = "InnAi API",
-                Description = "InnAi API",
+                Description = "The REST api provides current rain radar images in conjunction with the appropriate inn level.",
                 Version = "v1",
                 Contact = new OpenApiContact
                 {
@@ -87,6 +87,7 @@ public class Startup
         services.AddScoped<IRainRadarClient, RainRadarClient>();
         services.AddScoped<IInnLevelService, InnLevelService>();
         services.AddScoped<IInnLevelClient, InnLevelClient>();
+        services.AddScoped<IInnAiService, InnAiService>();
     }
 
     private void ConfigureHostedServices(IServiceCollection services)

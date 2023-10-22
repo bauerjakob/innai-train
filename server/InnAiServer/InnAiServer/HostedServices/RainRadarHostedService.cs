@@ -34,9 +34,8 @@ public class RainRadarHostedService : TimedHostedService<RainRadarHostedServiceP
     {
         var now = DateTime.UtcNow;
         var nextOccurrence = _schedule.GetNextOccurrence(now);
-        // await Task.Delay(nextOccurrence - now, cancellationToken);
-        await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
-        
+        await Task.Delay(nextOccurrence - now, cancellationToken);
+
         return new RainRadarHostedServicePram();
     }
 }

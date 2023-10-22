@@ -20,15 +20,14 @@ public class InnLevelHostedService : TimedHostedService<InnLevelHostedServicePra
         using var scope = _scopeFactory.CreateScope();
         var innLevelService = scope.ServiceProvider.GetRequiredService<IInnLevelService>();
 
-        await innLevelService.DownloadAndStoreLatestRadarImageAsync();            
+        await innLevelService.DownloadAndStoreAsync();            
     }
 
     public override async Task<InnLevelHostedServicePram> WaitAsync(CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
         var nextOccurrence = _schedule.GetNextOccurrence(now);
-        // await Task.Delay(nextOccurrence - now, cancellationToken);
-        await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+        await Task.Delay(nextOccurrence - now, cancellationToken);
 
         return new InnLevelHostedServicePram();
     }

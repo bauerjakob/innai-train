@@ -28,4 +28,13 @@ public class RainRadarRepository : IRainRadarRepository
         
         return Task.FromResult(result);
     }
+
+    public Task<RainRadar> GetAsync(string id)
+    {
+        var result = _rainRadarCollection
+            .AsQueryable()
+            .Single(x => x.Id == ObjectId.Parse(id));
+
+        return Task.FromResult(result);
+    }
 }

@@ -25,7 +25,7 @@ public class InnLevelClient : IInnLevelClient
 
     public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(DateTimeOffset from)
     {
-        DateTimeOffset to = DateTime.Now;
+        DateTimeOffset to = DateTime.UtcNow;
 
         return GetLatestInnLevelsAsync(from, to);
     }
@@ -37,9 +37,9 @@ public class InnLevelClient : IInnLevelClient
             throw new Exception();
         }
         
-        var endDate = ToUrlFriendlyTimeString(to.ToGermanTime());
-        var startDate = ToUrlFriendlyTimeString(from.ToGermanTime());
-        var requestUrl = $"/api/station/1.0/height/18001508-de/history?granularity=raw&loadEndDate={endDate}&loadStartDate={startDate}";
+        // var endDate = ToUrlFriendlyTimeString(to.UtcDateTime.ToGermanTime());
+        var startDate = ToUrlFriendlyTimeString(from.UtcDateTime.ToGermanTime());
+        var requestUrl = $"/api/station/1.0/height/18001508-de/history?granularity=raw&loadStartDate={startDate}"; // &loadEndDate={endDate}
         
         var response = await _client.GetAsync(requestUrl);
         

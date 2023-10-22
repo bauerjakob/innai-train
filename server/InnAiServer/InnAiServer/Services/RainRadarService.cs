@@ -6,22 +6,41 @@ namespace InnAiServer.Services;
 
 public class RainRadarService : IRainRadarService
 {
+    private readonly ILogger<RainRadarService> _logger;
     private readonly IRainRadarClient _rainRadarClient;
     private readonly IRainRadarRepository _dbRepository;
 
-    public RainRadarService(IRainRadarClient rainRadarClient, IRainRadarRepository dbRepository)
+    public RainRadarService(ILogger<RainRadarService> logger, IRainRadarClient rainRadarClient, IRainRadarRepository dbRepository)
     {
+        _logger = logger;
         _rainRadarClient = rainRadarClient;
         _dbRepository = dbRepository;
     }
-
-    public async Task<RainRadar?> GetLatestEntryAsync()
+    
+    public Task<RainRadar[]> GetLastAsync(int count)
     {
-        var latestItem = (await _dbRepository.GetLastAsync(1)).SingleOrDefault();
-        return latestItem;
+        return _dbRepository.GetLastAsync(count);
+    }
+
+    public async Task<byte[]> GetRadarImageAsync(string radarId)
+    {
+        var radarItem = await _dbRepository.GetAsync(radarId);
+        return radarItem.Image;
+    }
+
+    public async Task DownloadAndStoreLatestRadarImagesAsync()
+    {
+        var items = await DownloadLatestRadarImagesFromApiAsync();
+        
+        foreach (var rainData in items)
+        {
+            await _dbRepository.CreateAsync(rainData);
+        }
+        
+        _logger.LogInformation("[{ServiceName}] Successfully downloaded and stored {Count} items", nameof(RainRadarService), items?.Count() ?? 0);
     }
     
-    public async Task<IEnumerable<RainRadar>> DownloadLatestRadarImagesFromApiAsync()
+    private async Task<IEnumerable<RainRadar>> DownloadLatestRadarImagesFromApiAsync()
     {
         var latestItem = (await _dbRepository.GetLastAsync(1)).SingleOrDefault();
 
@@ -34,12 +53,9 @@ public class RainRadarService : IRainRadarService
                 new RainRadar(x.Timestamp, x.Data));
     }
     
-    public async Task DownloadAndStoreLatestRadarImagesAsync()
+    private async Task<RainRadar?> GetLastAsync()
     {
-        var result = await DownloadLatestRadarImagesFromApiAsync();
-        foreach (var rainData in result)
-        {
-            await _dbRepository.CreateAsync(rainData);
-        }
+        var latestItem = (await GetLastAsync(1)).SingleOrDefault();
+        return latestItem;
     }
 }
