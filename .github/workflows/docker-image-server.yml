@@ -42,7 +42,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4.1.1
       with:
-        file: ./server/InnAiServer/InnAiServer
+        file: ./server/InnAiServer/InnAiServer/Dockerfile
         context: ./server
         push: true
         tags: ${{ steps.meta.outputs.tags }}
