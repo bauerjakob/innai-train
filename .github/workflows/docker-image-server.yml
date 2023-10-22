@@ -9,10 +9,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
-defaults:
-    run:
-      working-directory: ./server
         
 jobs:
 
@@ -46,7 +42,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4.1.1
       with:
-        context: ./InnAiServer/InnAiServer/
+        working-directory: ./server/InnAiServer/InnAiServer
+        context: ./server
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
