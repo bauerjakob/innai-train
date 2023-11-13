@@ -1,6 +1,9 @@
+using System.Text.Json;
+using InnAiServer.Converters;
 using InnAiServer.Dtos;
 using InnAiServer.Services;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson.IO;
 
 namespace InnAiServer.Controllers;
 
@@ -44,6 +47,32 @@ public class InnAiController : ControllerBase
             var imageData = await _rainRadarService.GetRadarImageAsync(contentId);
             
             return File(imageData, "image/png", $"{contentId}.png");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, string.Empty);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+    
+    [HttpGet("radarImage/dbz/{contentId}")]
+    public async Task<ActionResult<IEnumerable<IEnumerable<int>>>> GetLatestRadarImageDbzAsync([FromRoute] string contentId)
+    {
+        try
+        {
+            var result = await _rainRadarService.GetRadarImageDbzAsync(contentId);
+            
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new TwoDimensionalIntArrayJsonConverter());
+            var json = JsonSerializer.Serialize(result, options);
+
+            var ms = new MemoryStream();
+            var sw = new StreamWriter(ms);
+            await sw.WriteAsync(json);
+            await sw.FlushAsync();
+            ms.Position = 0;
+            
+            return File(ms, "application/json", $"{contentId}.json");
         }
         catch (Exception ex)
         {

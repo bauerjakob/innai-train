@@ -12,7 +12,7 @@ public class RainRadarHostedService : TimedHostedService<RainRadarHostedServiceP
     private readonly ILogger<TimedHostedService<RainRadarHostedServicePram>> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    private readonly CrontabSchedule _schedule = CrontabSchedule.Parse("*/10 * * * *");
+    private readonly CrontabSchedule _schedule = CrontabSchedule.Parse("* * * * *");
 
     public RainRadarHostedService(ILogger<TimedHostedService<RainRadarHostedServicePram>> logger, IServiceScopeFactory scopeFactory) : base(logger)
     {
@@ -25,7 +25,7 @@ public class RainRadarHostedService : TimedHostedService<RainRadarHostedServiceP
         _logger.LogInformation("Timed Hosted Service is working.");
         
         using var scope = _scopeFactory.CreateScope();
-        var rainRadarService = scope.ServiceProvider.GetService<IRainRadarService>();
+        var rainRadarService = scope.ServiceProvider.GetRequiredService<IRainRadarService>();
 
         await rainRadarService.DownloadAndStoreLatestRadarImagesAsync();
     }
