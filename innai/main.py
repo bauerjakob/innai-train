@@ -1,5 +1,15 @@
-def print_hi(name):
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+from InnAiClient.Dtos.InnAiDataItemDto import InnAiDataItemDto
+from InnAiClient.InnAiClient import InnAiClient
+
+
+def LoadData() -> list[InnAiDataItemDto]:
+    client = InnAiClient("http://localhost:5294")
+    data = client.GetData(50)
+    return data
+
 
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    data = LoadData()
+
+    for item in data:
+        print(item.ImageId, item.Level, item.Timestamp)

@@ -8,7 +8,7 @@ public record InnLevelHostedServicePram();
 public class InnLevelHostedService : TimedHostedService<InnLevelHostedServicePram>
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly CrontabSchedule _schedule = CrontabSchedule.Parse("*/10 * * * *");
+    private readonly CrontabSchedule _schedule = CrontabSchedule.Parse("* * * * *");
 
     public InnLevelHostedService(ILogger<TimedHostedService<InnLevelHostedServicePram>> logger, IServiceScopeFactory scopeFactory) : base(logger)
     {

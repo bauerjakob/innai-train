@@ -63,11 +63,13 @@ public class InnLevelClient : IInnLevelClient
 
     private static DateTime UrlTimeToUtcDateTime(string dateTime)
     {
-        var dateTimeOffset = DateTimeOffset.ParseExact(dateTime, "dd.MM.yyyyTHH:mm:ss+0200", new CultureInfo("de-DE"));
+        var utcOffset = DateTimeExtensions.GetUtcOffset();
+        var dateTimeOffset = DateTimeOffset.ParseExact(dateTime, $"dd.MM.yyyyTHH:mm:ss+0{utcOffset}00", new CultureInfo("de-DE"));
         return dateTimeOffset.UtcDateTime;
     }
     private static string ToUrlFriendlyTimeString(DateTime dateTime)
     {
-        return dateTime.ToString("dd.MM.yyyyTHH:mm:ss")+ "%2B0200";
+        var utcOffset = DateTimeExtensions.GetUtcOffset();
+        return dateTime.ToString("dd.MM.yyyyTHH:mm:ss")+ $"%2B0{utcOffset}00";
     }
 }
