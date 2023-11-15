@@ -23,14 +23,14 @@ public class InnLevelClient : IInnLevelClient
         };
     }
 
-    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(DateTimeOffset from)
+    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(InnStation station, DateTimeOffset from)
     {
         DateTimeOffset to = DateTime.UtcNow;
 
-        return GetLatestInnLevelsAsync(from, to);
+        return GetLatestInnLevelsAsync(station, from, to);
     }
     
-    public async Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(DateTimeOffset from, DateTimeOffset to)
+    public async Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(InnStation station, DateTimeOffset from, DateTimeOffset to)
     {
         if (from > to)
         {
@@ -58,7 +58,7 @@ public class InnLevelClient : IInnLevelClient
 
         var result = json.Deserialize<PegelAlarmDto>(serializerOptions);
         return result?.Payload.History.Select(
-            x => new InnLevel(UrlTimeToUtcDateTime(x.SourceDate), Convert.ToInt32(x.Value)));
+            x => new InnLevel(UrlTimeToUtcDateTime(x.SourceDate), Convert.ToInt32(x.Value), station));
     }
 
     private static DateTime UrlTimeToUtcDateTime(string dateTime)

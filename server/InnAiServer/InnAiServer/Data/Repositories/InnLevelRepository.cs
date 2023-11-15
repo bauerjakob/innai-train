@@ -17,10 +17,17 @@ public class InnLevelRepository : IInnLevelRepository
     {
         await _innLevelCollection.InsertOneAsync(innLevel);
     }
+    
+    public Task<InnLevel[]> GetLastAsync(string station, int count)
+    {
+        return GetLastAsync(station, count, DateTime.UtcNow);
+    }
 
-    public Task<InnLevel[]> GetLastAsync(int count)
+    public Task<InnLevel[]> GetLastAsync(string station, int count, DateTime before)
     {
         var result = _innLevelCollection.AsQueryable()
+            .Where(x => x.Timestamp <= before)
+            .Where(x => x.Station.Name == station)
             .OrderByDescending(x => x.Timestamp)
             .Take(count)
             .ToArray();

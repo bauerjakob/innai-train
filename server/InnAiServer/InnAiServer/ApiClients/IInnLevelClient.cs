@@ -5,7 +5,7 @@ namespace InnAiServer.ApiClients;
 
 public interface IInnLevelClient
 {
-    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(DateTimeOffset from);
+    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(InnStation station, DateTimeOffset from);
     
-    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(DateTimeOffset from, DateTimeOffset to);
+    public Task<IEnumerable<InnLevel>?> GetLatestInnLevelsAsync(InnStation station, DateTimeOffset from, DateTimeOffset to);
 }

@@ -1,4 +1,6 @@
 namespace InnAiServer.Dtos;
 
 public record InnAiDataDto(int Count, InnAiDataItemDto[] Items);
-public record InnAiDataItemDto(DateTime Timestamp, int Level, string ImageId);
+public record InnAiDataItemDto(DateTime Timestamp, InnLevelDto[] InnLevels, string ImageId);
+
+public record InnLevelDto(int? Level, string Station);
