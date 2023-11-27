@@ -36,7 +36,6 @@ public class InnAiController : ControllerBase
             _logger.LogError(e, string.Empty);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-        
     }
 
     [HttpGet("radarImage/{contentId}")]

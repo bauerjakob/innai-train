@@ -16,3 +16,8 @@ class InnAiClient:
             ret.append(InnAiDataItemDto.FromJson(item))
 
         return ret
+
+    def LoadImageDbz(self, contentId: str):
+        response = requests.get(f"{self.baseUrl}/api/v1/radarImage/dbz/{contentId}")
+        data = response.json()
+        return data
