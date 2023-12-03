@@ -18,8 +18,8 @@ public class PrecipitationMapController : ControllerBase
         _rainRadarService = rainRadarService;
     }
     
-    [HttpGet("load")]
-    public async Task<IActionResult> LoadDataAsync([FromQuery] int year, [FromQuery] int month)
+    [HttpGet("import")]
+    public async Task<IActionResult> ImportDataAsync([FromQuery] int year, [FromQuery] int month)
     {
         var now = DateTime.UtcNow;
 

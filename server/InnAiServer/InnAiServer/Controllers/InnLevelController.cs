@@ -15,8 +15,8 @@ public class InnLevelController : ControllerBase
         _innLevelService = innLevelService;
     }
     
-    [HttpGet("load")]
-    public async Task<IActionResult> LoadDataAsync([FromQuery] int year, [FromQuery] int month)
+    [HttpGet("import")]
+    public async Task<IActionResult> ImportDataAsync([FromQuery] int year, [FromQuery] int month)
     {
         var now = DateTime.UtcNow;
 

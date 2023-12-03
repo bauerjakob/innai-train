@@ -1,4 +1,7 @@
+using System.Text.Json;
+using InnAiServer.Converters;
 using InnAiServer.Dtos;
+using InnAiServer.Models;
 using InnAiServer.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +20,24 @@ public class AiModelController : ControllerBase
     }
     
     [HttpGet("trainingData")]
-    public async Task<ActionResult<TrainingDataDto[]>> GetDataAsync([FromQuery] int count)
+    public async Task<IActionResult> GetDataAsync([FromQuery] int count, PrecipitationValueMode mode, int predictHours)
     {
         try
         {
-            var result = await _aiModelService.GetTrainingDataAsync(count);
+            var result = await _aiModelService.GetTrainingDataAsync(count, mode, predictHours);
+            
+            var options = new JsonSerializerOptions();
+            // options.Converters.Add(new TwoDimensionalIntArrayJsonConverter());
+            var json = JsonSerializer.Serialize(result, options);
+
+            var ms = new MemoryStream();
+            var sw = new StreamWriter(ms);
+            await sw.WriteAsync(json);
+            await sw.FlushAsync();
+            ms.Position = 0;
+
+            return File(ms, "application/json", $"{Guid.NewGuid()}.json");
+            
             return Ok(result);
         }
         catch (Exception e)

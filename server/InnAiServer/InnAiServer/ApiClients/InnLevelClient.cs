@@ -41,7 +41,7 @@ public class InnLevelClient : IInnLevelClient
         
         // var endDate = ToUrlFriendlyTimeString(to.UtcDateTime.ToGermanTime());
         var startDate = ToUrlFriendlyTimeString(from.UtcDateTime.ToGermanTime());
-        var requestUrl = $"/api/station/1.0/height/{station.Id}/history?granularity=raw&loadStartDate={startDate}"; // &loadEndDate={endDate}  
+        var requestUrl = $"/api/station/1.0/height/{station.Id}/history?granularity=hour&loadStartDate={startDate}"; // &loadEndDate={endDate}  
         
         var response = await _client.GetAsync(requestUrl);
         
