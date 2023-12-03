@@ -9,8 +9,11 @@ public static class DateTimeExtensions
         return time;
     }
 
-    public static int GetUtcOffset()
+    public static int GetUtcOffset(this DateTime dateTime)
     {
-        return _germanTimeZone.GetUtcOffset(DateTime.UtcNow).Hours;
+        return _germanTimeZone.GetUtcOffset(dateTime).Hours;
     }
+
+    public static long ToUnixTimeStamp(this DateTime dateTime)
+        => ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
 }

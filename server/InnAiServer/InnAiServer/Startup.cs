@@ -1,5 +1,6 @@
 using Amazon.Runtime;
 using InnAiServer.ApiClients;
+using InnAiServer.Controllers;
 using InnAiServer.Data.Repositories;
 using InnAiServer.HostedServices;
 using InnAiServer.Options;
@@ -63,7 +64,7 @@ public class Startup
 
     private void ConfigureOptions(IServiceCollection services)
     {
-        services.Configure<RainRadarOptions>(_configuration.GetSection(nameof(RainRadarOptions)));
+        services.Configure<PrecipitationClientOptions>(_configuration.GetSection(nameof(PrecipitationClientOptions)));
         services.Configure<InnLevelOptions>(_configuration.GetSection(nameof(InnLevelOptions)));
     }
 
@@ -84,16 +85,17 @@ public class Startup
     private void ConfigureCustomServices(IServiceCollection services)
     {
         services.AddScoped<IRainRadarService, RainRadarService>();
-        services.AddScoped<IRainRadarClient, RainRadarClient>();
+        services.AddScoped<IWeatherApiClient, OpenWeatherMapsClient>();
         services.AddScoped<IInnLevelService, InnLevelService>();
         services.AddScoped<IInnLevelClient, InnLevelClient>();
         services.AddScoped<IInnAiService, InnAiService>();
+        services.AddScoped<IAiModelService, AiModelService>();
     }
 
     private void ConfigureHostedServices(IServiceCollection services)
     {
-        services.AddHostedService<RainRadarHostedService>();
-        services.AddHostedService<InnLevelHostedService>();
+        // services.AddHostedService<RainRadarHostedService>();
+        // services.AddHostedService<InnLevelHostedService>();
     }
     
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,6 +6,8 @@ public interface IRainRadarService
 {
     public Task<RainRadar[]> GetLastAsync(int count);
     public Task<byte[]> GetRadarImageAsync(string radarId);
-    public Task<int[,]> GetRadarImageDbzAsync(string radarId);
-    public Task DownloadAndStoreLatestRadarImagesAsync();
+    public Task<int[,]> GetRadarImageValuesAsync(string radarId);
+    // public Task DownloadAndStoreLatestRadarImagesAsync();
+
+    public Task LoadMonthAsync(int year, int month);
 }

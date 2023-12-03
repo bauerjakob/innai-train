@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Resources\RainViewerColorScheme.csv">
+      <None Update="Resources\OpenWeatherMapColorScheme.csv">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

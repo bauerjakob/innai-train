@@ -27,7 +27,7 @@ public class RainRadarHostedService : TimedHostedService<RainRadarHostedServiceP
         using var scope = _scopeFactory.CreateScope();
         var rainRadarService = scope.ServiceProvider.GetRequiredService<IRainRadarService>();
 
-        await rainRadarService.DownloadAndStoreLatestRadarImagesAsync();
+        // await rainRadarService.DownloadAndStoreLatestRadarImagesAsync();
     }
 
     public override async Task<RainRadarHostedServicePram> WaitAsync(CancellationToken cancellationToken)

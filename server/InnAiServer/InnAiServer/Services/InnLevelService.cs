@@ -32,29 +32,38 @@ public class InnLevelService : IInnLevelService
         return _innLevelRepository.GetLastAsync(station, count, before);
     }
 
-    public async Task DownloadAndStoreAsync()
+    public InnStation[] GetInnStations()
     {
-        foreach (var station in _options.Stations)
-        {
-            await DownloadAndStoreAsync(station);
-        }
+        return _options.Stations;
     }
 
-    private async Task DownloadAndStoreAsync(InnStation station)
+    // public async Task LoadMonthAsync(int year, int month)
+    // {
+    //     List<InnLevel> innLevels = new();
+    //     foreach (var station in _options.Stations)
+    //     {
+    //         var stationData = await _innLevelClient.GetInnLevelsFromMonthAsync(station, year, month);    
+    //         innLevels.AddRange(stationData);
+    //     }
+    //
+    //     foreach (var item in innLevels)
+    //     {
+    //         await _innLevelRepository.CreateAsync(item);
+    //     }
+    // }
+    
+    public async Task LoadAsync(DateTime from)
     {
-        var lastItem = (await _innLevelRepository.GetLastAsync(station.Name, 1)).SingleOrDefault();
-        var from = lastItem?.Timestamp.AddMinutes(1) ?? DateTime.Now.Subtract(TimeSpan.FromHours(5));
-            
-        var items = await _innLevelClient.GetLatestInnLevelsAsync(station, from);
-            
-        if (items != null)
+        List<InnLevel> innLevels = new();
+        foreach (var station in _options.Stations)
         {
-            foreach (var item in items)
-            {
-                await _innLevelRepository.CreateAsync(item);
-            }
+            var data = await _innLevelClient.GetInnLevelsAsync(station, from);
+            innLevels.AddRange(data);
         }
-        
-        _logger.LogInformation("[{ServiceName}] Successfully downloaded and stored {Count} items - Station: {StationName}", nameof(InnLevelService), items?.Count() ?? 0, station.Name);
+
+        foreach (var innLevel in innLevels)
+        {
+            await _innLevelRepository.CreateAsync(innLevel);
+        }
     }
 }
