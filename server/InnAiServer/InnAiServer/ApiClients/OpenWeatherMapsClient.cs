@@ -78,7 +78,7 @@ public class OpenWeatherMapsClient : IWeatherApiClient
     {
         List<PrecipitationData> ret = new();
 
-        var daysCount = 3; // DateTime.DaysInMonth(year, month);
+        var daysCount = DateTime.DaysInMonth(year, month);
 
         for (var i = 0; i < daysCount; i++)
         {

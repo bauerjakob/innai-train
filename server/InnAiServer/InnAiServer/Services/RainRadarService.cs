@@ -120,18 +120,6 @@ public class RainRadarService : IRainRadarService
 
     private int ReadValueAsync(string hexColor)
     {
-        if (_colorSchemeItems == null)
-        {
-            // using var reader = new StreamReader(Path.Combine("Resources", "OpenWeatherMapColorScheme.csv"), Encoding.UTF8);
-            // using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            // _colorSchemeItems = csv.GetRecords<OpenWeatherMapColorSchemeItem>().ToArray();
-        }
-
-        // if (_colorSchemeItems == null)
-        // {
-        //     throw new Exception();
-        // }
-        
         var hexColorExtended = $"{hexColor}{(hexColor.Length == 7 ? "ff" : string.Empty)}";
 
         var hexColorUnextended = hexColorExtended.Substring(1, 2);

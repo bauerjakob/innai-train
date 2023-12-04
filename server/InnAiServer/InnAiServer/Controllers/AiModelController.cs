@@ -37,8 +37,6 @@ public class AiModelController : ControllerBase
             ms.Position = 0;
 
             return File(ms, "application/json", $"{Guid.NewGuid()}.json");
-            
-            return Ok(result);
         }
         catch (Exception e)
         {
