@@ -123,10 +123,8 @@ public class RainRadarService : IRainRadarService
         var hexColorExtended = $"{hexColor}{(hexColor.Length == 7 ? "ff" : string.Empty)}";
 
         var hexColorUnextended = hexColorExtended.Substring(1, 2);
-        
-        var hexValue = (int)Math.Round(int.Parse(hexColorUnextended, NumberStyles.HexNumber) * 6.0 / int.Parse("FC", NumberStyles.HexNumber), 0, MidpointRounding.ToEven);  
-        
-        return hexValue;
+
+        return int.Parse(hexColorUnextended, NumberStyles.HexNumber);  
     }
 
 

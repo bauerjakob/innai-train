@@ -91,5 +91,5 @@ public class OpenWeatherMapsClient : IWeatherApiClient
 
     private string GetPrecipitationBaseUrl() =>
         $"/maps/2.0/weather/PAR0/{_options.Zoom}/{_options.X}/{_options.Y}?fill_bound=false&opacity=1&appid={_options.ApiKey}" +
-        $"&palette=0:000000;0.1:2A2A2A;0.2:545454;0.5:7E7E7E;1:A8A8A8;10:D2D2D2;140:FCFCFC";
+        $"&palette={_options.ColorPalette}";
 }
