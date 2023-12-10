@@ -31,19 +31,28 @@ public class AiModelService : IAiModelService
         {
             List<InnLevelDto> innLevels = new();
             List<NextInnLevelDto> nextInnLevelDtos = new();
-            foreach (var station in stations)
+            try
             {
-                var innLevel = await GetMatchingWaterLevelAsync(station, rainRadar.Timestamp, predictHours);
-                innLevels.Add(new InnLevelDto(innLevel.CurrentLevel.Value, station));
-
-                if (station == "RosenheimAboveMangfallmündung")
+                foreach (var station in stations)
                 {
-                    nextInnLevelDtos = innLevel
-                        .NextLevels
-                        .Select(x => 
-                            new NextInnLevelDto(x.Value, (int)(x.Timestamp - innLevel.CurrentLevel.Timestamp).TotalHours)).ToList();
+                    var innLevel = await GetMatchingWaterLevelAsync(station, rainRadar.Timestamp, predictHours, station == "RosenheimAboveMangfallmündung");
+                    innLevels.Add(new InnLevelDto(innLevel.CurrentLevel.Value, station));
+
+                    if (station == "RosenheimAboveMangfallmündung")
+                    {
+                        nextInnLevelDtos = innLevel
+                            .NextLevels
+                            .Select(x => 
+                                new NextInnLevelDto(x.Value, (int)(x.Timestamp - innLevel.CurrentLevel.Timestamp).TotalHours)).ToList();
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, string.Empty);
+                continue;
+            }
+            
 
             var data = mode switch
             {
@@ -74,18 +83,19 @@ public class AiModelService : IAiModelService
         return new TrainingDataDto(items.Count, items.ToArray());
     }
     
-    public async Task<(InnLevel CurrentLevel, InnLevel[] NextLevels)> GetMatchingWaterLevelAsync(string station, DateTime timestamp, int predictHours)
+    public async Task<(InnLevel CurrentLevel, InnLevel[] NextLevels)> GetMatchingWaterLevelAsync(string station, DateTime timestamp, int predictHours, bool loadNextLevels)
     {
-        var innLevels = (await _innLevelService.GetLastAsync(station, predictHours + 1, timestamp.AddHours(predictHours))).OrderBy(x => x.Timestamp);
+        var count = (loadNextLevels ? predictHours : 0) + 1;
+        var innLevels = (await _innLevelService.GetLastAsync(station, count, timestamp.AddHours(loadNextLevels ? predictHours : 0))).OrderBy(x => x.Timestamp);
         
-        if (innLevels == null || innLevels.Count() != predictHours + 1)
+        if (innLevels == null || innLevels.Count() != count)
         {
             throw new Exception();
         }
         
         var innLevel = innLevels.First();
 
-        var nextInnLevels = innLevels.TakeLast(predictHours).ToArray();
+        InnLevel[] nextInnLevels = loadNextLevels ? innLevels?.TakeLast(predictHours).ToArray() : null;
         
         var timeDifference = timestamp - innLevel.Timestamp;
         if (Math.Abs(timeDifference.TotalHours) != 0)
