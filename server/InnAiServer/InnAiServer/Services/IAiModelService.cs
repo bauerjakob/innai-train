@@ -1,3 +1,4 @@
+using InnAi.Core;
 using InnAiServer.Dtos;
 using InnAiServer.Models;
 
@@ -5,5 +6,5 @@ namespace InnAiServer.Services;
 
 public interface IAiModelService
 {
-    public Task<TrainingDataDto> GetTrainingDataAsync(int count, PrecipitationValueMode mode, int predictHours);
+    public Task<TrainingData> GetTrainingDataAsync(int count, PrecipitationValueMode mode, int predictHours);
 }
