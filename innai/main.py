@@ -1,5 +1,10 @@
-from InnAiClient.Dtos.InnAiDataItemDto import InnAiDataItemDto
-from InnAiClient.InnAiClient import InnAiClient
+from torch.utils.data import DataLoader
 
-for item in data:
-    print(item.ImageId, item.Level, item.Timestamp)
+from data_set.innai_data_set import InnAiDataSet
+
+dataset = InnAiDataSet()
+dataloader = DataLoader(dataset=dataset, batch_size=4, shuffle=True, num_workers=2)
+
+print(len(dataset))
+image, levels, prediction = dataset.__getitem__(5)
+
