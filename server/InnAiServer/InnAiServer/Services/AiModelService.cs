@@ -21,7 +21,7 @@ public class AiModelService : IAiModelService
         _rainRadarService = rainRadarService;
     }
     
-    public async Task<TrainingData> GetTrainingDataAsync(int count, PrecipitationValueMode mode, int predictHours)
+    public async Task<TrainingData> GetTrainingDataAsync(int count, int predictHours)
     {
         var rainRadars = await _rainRadarService.GetLastAsync(count);
 
@@ -57,35 +57,35 @@ public class AiModelService : IAiModelService
                 _logger.LogError(e, string.Empty);
                 continue;
             }
-            
 
-            var data = mode switch
-            {
-                PrecipitationValueMode.Min => rainRadar.ValuesRainReducedMin,
-                PrecipitationValueMode.Max => rainRadar.ValuesRainReducedMax,
-                PrecipitationValueMode.Avg => rainRadar.ValuesRainReducedAvg,
-                _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
-            };
 
-            List<int[]> parsedData = new();
+            var dataLarge = ParseData(rainRadar.ValuesRainLarge);
+            var dataMedium = ParseData(rainRadar.ValuesRainMedium);
+            var dataSmall = ParseData(rainRadar.ValuesRainSmall);
 
-            for (int i = 0; i < data.GetLength(0); i++)
-            {
-                List<int> row = new();
-                for (int j = 0; j < data.GetLength(1); j++)
-                {
-                    row.Add(data[i, j]);
-                }
-                
-                parsedData.Add(row.ToArray());
-            }
-            
-
-            var dateItem = new TrainingDataItem(rainRadar.Timestamp, innLevels.ToArray(), rainRadar.Id.ToString(), parsedData.ToArray(), nextInnLevelDtos.ToArray());
+            var dateItem = new TrainingDataItem(rainRadar.Timestamp, innLevels.ToArray(), rainRadar.Id.ToString(), dataLarge, dataMedium, dataSmall, nextInnLevelDtos.ToArray());
             items.Add(dateItem);
         }
 
         return new TrainingData(items.Count, items.ToArray());
+    }
+
+    private double[][] ParseData(double[,] data)
+    {
+        List<double[]> parsedData = new();
+
+        for (int i = 0; i < data.GetLength(0); i++)
+        {
+            List<double> row = new();
+            for (int j = 0; j < data.GetLength(1); j++)
+            {
+                row.Add(data[i, j]);
+            }
+                
+            parsedData.Add(row.ToArray());
+        }
+
+        return parsedData.ToArray();
     }
     
     public async Task<(InnLevel CurrentLevel, InnLevel[] NextLevels)> GetMatchingWaterLevelAsync(string station, DateTime timestamp, int predictHours, bool loadNextLevels)

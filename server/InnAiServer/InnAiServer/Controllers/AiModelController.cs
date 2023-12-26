@@ -24,18 +24,16 @@ public class AiModelController : ControllerBase
     }
 
     [HttpGet("trainingData")]
-    public async Task<ActionResult<FileResultDto>> GetDataAsync([FromQuery] int count, PrecipitationValueMode mode,
+    public async Task<ActionResult<FileResultDto>> GetDataAsync([FromQuery] int count,
         int predictHours)
     {
         var fileId = Guid.NewGuid();
         
         _ = Task.Run(async () =>
         {
-
-
             try
             {
-                var result = await _aiModelService.GetTrainingDataAsync(count, mode, predictHours);
+                var result = await _aiModelService.GetTrainingDataAsync(count, predictHours);
                 var options = new JsonSerializerOptions();
                 // options.Converters.Add(new TwoDimensionalIntArrayJsonConverter());
                 var json = JsonSerializer.Serialize(result, options);

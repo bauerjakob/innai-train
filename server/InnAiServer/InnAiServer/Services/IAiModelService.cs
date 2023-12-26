@@ -6,5 +6,5 @@ namespace InnAiServer.Services;
 
 public interface IAiModelService
 {
-    public Task<TrainingData> GetTrainingDataAsync(int count, PrecipitationValueMode mode, int predictHours);
+    public Task<TrainingData> GetTrainingDataAsync(int count, int predictHours);
 }

@@ -35,10 +35,10 @@ public class RainRadarService : IRainRadarService
         return radarItem.ImageRain;
     }
 
-    public async Task<int[,]> GetRadarImageValuesAsync(string radarId)
+    public async Task<double[,]> GetRadarImageValuesAsync(string radarId)
     {
         var radarItem = await _dbRepository.GetAsync(radarId);
-        return radarItem.ValuesRainReducedMin;
+        return radarItem.ValuesRainLarge;
     }
 
     // public async Task DownloadAndStoreLatestRadarImagesAsync()
@@ -60,11 +60,13 @@ public class RainRadarService : IRainRadarService
         foreach (var item in data)
         {
             var values = ImageToValues(item.Data);
-            var valuesReducesMin = ReduceImageValuesAsync(values, x => x.Min());
-            var valuesReducesMax = ReduceImageValuesAsync(values, x => x.Max());
-            var valuesReducesAvg = ReduceImageValuesAsync(values, x => (int)x.Average());
+            // var valuesReducesMin = ReduceImageValuesAsync(values, x => x.Min(), 8);
+            // var valuesReducesMax = ReduceImageValuesAsync(values, x => x.Max(), 8);
+            var valuesReducesLarge = NormalizeData(ReduceImageValuesAsync(values, x => (int)x.Average(), 8));
+            var valuesReducesMedium = NormalizeData(ReduceImageValuesAsync(values, x => (int)x.Average(), 16));
+            var valuesReducesSmall = NormalizeData(ReduceImageValuesAsync(values, x => (int)x.Average(), 32));
 
-            var rainData = new RainRadar(item.Timestamp, item.Data, values, valuesReducesMin, valuesReducesMax, valuesReducesAvg);
+            var rainData = new RainRadar(item.Timestamp, item.Data, values, valuesReducesLarge, valuesReducesMedium, valuesReducesSmall);
             await _dbRepository.CreateAsync(rainData);
         }
 
@@ -128,10 +130,9 @@ public class RainRadarService : IRainRadarService
     }
 
 
-    private int[,] ReduceImageValuesAsync(int[,] imageData, Func<int[], int> selector)
+    private int[,] ReduceImageValuesAsync(int[,] imageData, Func<int[], int> selector, int factor)
     {
-        int pixels = 8;
-        var size = imageData.GetLength(0) / pixels;
+        var size = imageData.GetLength(0) / factor;
 
         var ret = new int[size, size];
 
@@ -140,16 +141,37 @@ public class RainRadarService : IRainRadarService
             for (var j = 0; j < size; j++)
             {
                 List<int> values = new();
-                for (var x = 0; x < pixels; x++)
+                for (var x = 0; x < factor; x++)
                 {
-                    for (var y = 0; y < pixels; y++)
+                    for (var y = 0; y < factor; y++)
                     { 
-                        var value = imageData[i * pixels + x, j * pixels + y];
+                        var value = imageData[i * factor + x, j * factor + y];
                         values.Add(value);
                     }
                 }
 
                 ret[i, j] = selector(values.ToArray());
+            }
+        }
+
+        return ret;
+    }
+
+    private double[,] NormalizeData(int[,] data)
+    {
+        int min = 0;
+        int max = 255;
+        
+        var size = data.GetLength(0);
+        var ret = new double[size, size];
+        
+        for (var i = 0; i < size; i++)
+        {
+            for (var j = 0; j < size; j++)
+            {
+                var value = data[i, j];
+
+                ret[i, j] = ((double)value - min) / ((double)max - min);
             }
         }
 

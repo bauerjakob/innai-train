@@ -35,8 +35,5 @@ public class FileController : ControllerBase
         var stream = new MemoryStream(file.Data);
 
         return File(stream, "application/json", $"{file.ExternalId.ToString().ToLower()}.json");
-
-
-
     }
 }
