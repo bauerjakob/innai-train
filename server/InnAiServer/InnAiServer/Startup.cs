@@ -80,6 +80,7 @@ public class Startup
 
         services.AddScoped<IRainRadarRepository, RainRadarRepository>();
         services.AddScoped<IInnLevelRepository, InnLevelRepository>();
+        services.AddScoped<IFileRepository, FileRepository>();
     }
 
     private void ConfigureCustomServices(IServiceCollection services)

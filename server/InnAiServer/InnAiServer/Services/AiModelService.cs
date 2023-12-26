@@ -28,19 +28,22 @@ public class AiModelService : IAiModelService
         var stations = _innLevelService.GetInnStations().Select(x => x.Name);
 
         List<TrainingDataItem> items = new ();
+
+        int index = 0;
         
         foreach (var rainRadar in rainRadars)
         {
+            _logger.LogInformation("GetTrainingDataAsync - {0}/{1}", ++index, rainRadars.Length);
             List<InnAi.Core.InnLevel> innLevels = new();
             List<NextInnLevel> nextInnLevelDtos = new();
             try
             {
                 foreach (var station in stations)
                 {
-                    var innLevel = await GetMatchingWaterLevelAsync(station, rainRadar.Timestamp, predictHours, station == "RosenheimAboveMangfallmündung");
+                    var innLevel = await GetMatchingWaterLevelAsync(station, rainRadar.Timestamp, predictHours, station == "RosenheimAboveMangfall");
                     innLevels.Add(new InnAi.Core.InnLevel(innLevel.CurrentLevel.Value, station));
 
-                    if (station == "RosenheimAboveMangfallmündung")
+                    if (station == "RosenheimAboveMangfall")
                     {
                         nextInnLevelDtos = innLevel
                             .NextLevels

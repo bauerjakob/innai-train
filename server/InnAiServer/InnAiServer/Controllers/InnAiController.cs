@@ -8,7 +8,7 @@ using MongoDB.Bson.IO;
 namespace InnAiServer.Controllers;
 
 [ApiController]
-[Route("api/v1/innAi")]
+[Route("api/v1/file")]
 [ApiVersion("1.0")]
 public class InnAiController : ControllerBase
 {

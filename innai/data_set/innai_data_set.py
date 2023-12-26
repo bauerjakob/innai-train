@@ -14,7 +14,7 @@ class InnAiDataSet(Dataset):
 
         innAiDto = InnAiDto.from_json(data)
 
-        self.precipitationMaps = torch.tensor([item.precipitation_map for item in innAiDto.items])
+        self.precipitationMaps = torch.tensor([[[float(j) for j in x] for x  in item.precipitation_map] for item in innAiDto.items])
 
         innLevels: List[int] = []
         nextInnLevels: List[int] = []
@@ -22,15 +22,14 @@ class InnAiDataSet(Dataset):
             item: InnAiItemDto
 
             # current inn levels
-            levels = [x.level for x in item.inn_levels[:3]]
+            levels = [float(x.level) for x in item.inn_levels[:3]]
             innLevels.append(levels)
 
             # next inn levels
-            nextLevels = [x.level for x in item.next_inn_levels]
+            nextLevels = [float(x.level) for x in item.next_inn_levels[0:3]]
             nextInnLevels.append(nextLevels)
 
         self.innLevels = torch.tensor(innLevels)
-
         self.nextInnLevels = torch.tensor(nextInnLevels)
 
 
