@@ -42,6 +42,34 @@ public class PrecipitationMapController : ControllerBase
         return Ok();
     }
     
+    [HttpGet("import/range")]
+    public async Task<IActionResult> ImportDataRangeAsync([FromQuery] int year, [FromQuery] int monthFrom, [FromQuery] int monthTo)
+    {
+        var now = DateTime.UtcNow;
+        
+        
+
+        if (year > now.Year || year == now.Year && monthTo >= now.Month || monthFrom > monthTo || monthFrom < 1 || monthTo > 12)
+        {
+            return BadRequest();
+        }
+        
+        try
+        {
+            for (int i = 0; i < monthTo - monthFrom; i++)
+            {
+                await _rainRadarService.LoadMonthAsync(year, monthFrom + i);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, string.Empty);
+            return BadRequest();
+        }
+
+        return Ok();
+    }
+    
     [HttpGet("{contentId}")]
     public async Task<IActionResult> GetLatestRadarImageAsync([FromRoute] string contentId)
     {
