@@ -19,11 +19,12 @@ public class RainRadarRepository : IRainRadarRepository
         await _rainRadarCollection.InsertOneAsync(radarData);
     }
 
-    public Task<RainRadar[]> GetLastAsync(int count)
+    public Task<ObjectId[]> GetLastIdsAsync(int count)
     {
         var result = _rainRadarCollection.AsQueryable()
             .OrderByDescending(x => x.Timestamp)
             .Take(count)
+            .Select(x => x.Id)
             .ToArray();
         
         return Task.FromResult(result);

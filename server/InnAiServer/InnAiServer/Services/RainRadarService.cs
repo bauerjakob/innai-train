@@ -6,6 +6,7 @@ using InnAiServer.Data.Collections;
 using InnAiServer.Data.Repositories;
 using InnAiServer.Models;
 using ImageMagick;
+using MongoDB.Bson;
 
 namespace InnAiServer.Services;
 
@@ -24,9 +25,14 @@ public class RainRadarService : IRainRadarService
         _dbRepository = dbRepository;
     }
     
-    public Task<RainRadar[]> GetLastAsync(int count)
+    public Task<RainRadar> GetAsync(ObjectId rainRadarId)
     {
-        return _dbRepository.GetLastAsync(count);
+        return _dbRepository.GetAsync(rainRadarId.ToString());
+    }
+    
+    public Task<ObjectId[]> GetLastIdAsync(int count)
+    {
+        return _dbRepository.GetLastIdsAsync(count);
     }
 
     public async Task<byte[]> GetRadarImageAsync(string radarId)
@@ -89,9 +95,9 @@ public class RainRadarService : IRainRadarService
     //                 ImageToDbzValues(x.Data)));
     // }
     
-    private async Task<RainRadar?> GetLastAsync()
+    private async Task<ObjectId?> GetLastIdAsync()
     {
-        var latestItem = (await GetLastAsync(1)).SingleOrDefault();
+        var latestItem = (await GetLastIdAsync(1)).SingleOrDefault();
         return latestItem;
     }
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using InnAi.Core;
 using InnAiServer.Converters;
 using InnAiServer.Data.Collections;
 using InnAiServer.Data.Repositories;
@@ -36,19 +37,25 @@ public class AiModelController : ControllerBase
                 var result = await _aiModelService.GetTrainingDataAsync(count, predictHours);
                 var options = new JsonSerializerOptions();
                 // options.Converters.Add(new TwoDimensionalIntArrayJsonConverter());
-                var json = JsonSerializer.Serialize(result, options);
 
-                var ms = new MemoryStream();
-                var sw = new StreamWriter(ms);
-                await sw.WriteAsync(json);
-                await sw.FlushAsync();
-                ms.Position = 0;
+                var samples = SampleData(result.Items);
 
-                var data = ms.ToArray();
+                foreach (var sample in samples)
+                {
+                    var json = JsonSerializer.Serialize(sample, options);
 
-                var fileData = new FileData(fileId, data);
-                await _fileRepository.CreateAsync(fileData);
-                _logger.LogInformation($"File with id {fileId} successfully stored");
+                    var ms = new MemoryStream();
+                    var sw = new StreamWriter(ms);
+                    await sw.WriteAsync(json);
+                    await sw.FlushAsync();
+                    ms.Position = 0;
+
+                    var data = ms.ToArray();
+
+                    var fileData = new FileData(fileId, data);
+                    await _fileRepository.CreateAsync(fileData);
+                    _logger.LogInformation($"File with id {fileId} successfully stored");
+                }
             }
             catch (Exception e)
             {
@@ -57,5 +64,28 @@ public class AiModelController : ControllerBase
         });
 
         return Ok(new FileResultDto(fileId));
+    }
+
+    private List<List<TrainingDataItem>> SampleData(TrainingDataItem[] data)
+    {
+        List<List<TrainingDataItem>> result = new();
+        List<TrainingDataItem> sample = new();
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (i % 1000 == 0 && sample.Count != 0)
+            {
+                result.Add(sample);
+                sample = new();
+            }
+            
+            sample.Add(data[i]);
+        }
+
+        if (sample.Count > 0)
+        {
+            result.Add(sample);
+        }
+
+        return result;
     }
 }

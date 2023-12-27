@@ -18,9 +18,9 @@ public class FileRepository : IFileRepository
         return _fileCollection.InsertOneAsync(fileData);
     }
 
-    public Task<FileData> GetAsync(Guid fileId)
+    public Task<FileData[]> GetAsync(Guid fileId)
     {
-        var file = _fileCollection.AsQueryable().Where(x => x.ExternalId == fileId).Single() ?? throw new Exception();
-        return Task.FromResult(file);
+        var fileSamples = _fileCollection.AsQueryable().Where(x => x.ExternalId == fileId) ?? throw new Exception();
+        return Task.FromResult(fileSamples.ToArray());
     }
 }

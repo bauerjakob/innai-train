@@ -27,7 +27,9 @@ class NextInnLevelDto:
 class InnAiItemDto:
     timestamp: str
     inn_levels: List[InnLevelDto]
-    precipitation_map: List[List[int]]
+    precipitation_map_large: List[List[float]]
+    precipitation_map_medium: List[List[float]]
+    precipitation_map_small: List[List[float]]
     next_inn_levels: List[NextInnLevelDto]
 
     @staticmethod
@@ -35,7 +37,9 @@ class InnAiItemDto:
         ret = InnAiItemDto()
         ret.timestamp = json["Timestamp"]
         ret.inn_levels = [InnLevelDto.from_json(x) for x in json["InnLevels"]]
-        ret.precipitation_map = json["PrecipitationMapValues"]
+        ret.precipitation_map_large = json["PrecipitationMapLarge"]
+        ret.precipitation_map_medium = json["PrecipitationMapMedium"]
+        ret.precipitation_map_small = json["PrecipitationMapSmall"]
         ret.next_inn_levels = [NextInnLevelDto.from_json(x) for x in json["NextInnLevels"]]
         return ret
 

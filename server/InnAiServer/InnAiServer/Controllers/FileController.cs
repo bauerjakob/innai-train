@@ -1,6 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using InnAi.Core;
 using InnAiServer.Data.Collections;
 using InnAiServer.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson.IO;
 
 namespace InnAiServer.Controllers;
 
@@ -21,10 +25,10 @@ public class FileController : ControllerBase
     [HttpPost("{fileId}")]
     public async Task<IActionResult> GetAsync([FromRoute] Guid fileId)
     {
-        FileData file;
+        FileData[] fileSamples;
         try
         {
-            file = await _fileRepository.GetAsync(fileId);
+            fileSamples = await _fileRepository.GetAsync(fileId);
         }
         catch (Exception e)
         {
@@ -32,8 +36,28 @@ public class FileController : ControllerBase
             return BadRequest();
         }
 
-        var stream = new MemoryStream(file.Data);
+        var ret = new List<TrainingDataItem>();
 
-        return File(stream, "application/json", $"{file.ExternalId.ToString().ToLower()}.json");
+
+        foreach (var sample in fileSamples)
+        {
+            var stream = new MemoryStream(sample.Data);
+            var data =  await JsonSerializer.DeserializeAsync<TrainingDataItem[]>(stream);
+            ret.AddRange(data);
+        }
+
+        var trainingData = new TrainingData(ret.Count, ret.ToArray());
+
+        var json = JsonSerializer.Serialize(trainingData);
+
+        var ms = new MemoryStream();
+        var sw = new StreamWriter(ms);
+        await sw.WriteAsync(json);
+        await sw.FlushAsync();
+        ms.Position = 0;
+
+        // var data = ms.ToArray();
+
+        return File(ms, "application/json", $"{fileId.ToString().ToLower()}.json");
     }
 }

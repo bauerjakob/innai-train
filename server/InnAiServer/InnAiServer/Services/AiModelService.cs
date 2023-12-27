@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using InnAi.Core;
 using InnAiServer.Data.Collections;
 using InnAiServer.Dtos;
@@ -23,17 +24,19 @@ public class AiModelService : IAiModelService
     
     public async Task<TrainingData> GetTrainingDataAsync(int count, int predictHours)
     {
-        var rainRadars = await _rainRadarService.GetLastAsync(count);
+        var rainRadarIds = await _rainRadarService.GetLastIdAsync(count);
 
         var stations = _innLevelService.GetInnStations().Select(x => x.Name);
 
-        List<TrainingDataItem> items = new ();
+        ConcurrentBag<TrainingDataItem> items = new ();
 
         int index = 0;
-        
-        foreach (var rainRadar in rainRadars)
+
+        await Parallel.ForEachAsync(rainRadarIds, async (id, token) =>
         {
-            _logger.LogInformation("GetTrainingDataAsync - {0}/{1}", ++index, rainRadars.Length);
+            var rainRadar = await _rainRadarService.GetAsync(id);
+
+            _logger.LogInformation("GetTrainingDataAsync - {0}/{1}", ++index, rainRadarIds.Length);
             List<InnAi.Core.InnLevel> innLevels = new();
             List<NextInnLevel> nextInnLevelDtos = new();
             try
@@ -55,7 +58,7 @@ public class AiModelService : IAiModelService
             catch (Exception e)
             {
                 _logger.LogError(e, string.Empty);
-                continue;
+                return;
             }
 
 
@@ -65,8 +68,8 @@ public class AiModelService : IAiModelService
 
             var dateItem = new TrainingDataItem(rainRadar.Timestamp, innLevels.ToArray(), rainRadar.Id.ToString(), dataLarge, dataMedium, dataSmall, nextInnLevelDtos.ToArray());
             items.Add(dateItem);
-        }
-
+        });
+        
         return new TrainingData(items.Count, items.ToArray());
     }
 
