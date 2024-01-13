@@ -1,6 +1,8 @@
 using InnAiServer;
 
-CreateHostBuilder(args).Build().Run();
+var host = CreateHostBuilder(args).Build();
+host.Run();
+
 
 
 static IHostBuilder CreateHostBuilder(string[] args) =>

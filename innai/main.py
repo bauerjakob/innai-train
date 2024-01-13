@@ -1,17 +1,45 @@
+from model.inn_ai_model import InnAiModel
 import torch
-from torch.utils.data import DataLoader
 
-from data_set.innai_data_set import InnAiDataSet
+from torch.autograd import Variable
 
-# dataset = InnAiDataSet()
-# dataloader = DataLoader(dataset=dataset, batch_size=4, shuffle=True)
-#
-# for batch_idx, (precipitationMaps, currentInnLevels, nextInnLevels) in enumerate(dataloader):
-#     print(precipitationMaps.size())
+data = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.00784313725490196, 0.00392156862745098, 0.0, 0.0, 0.0, 0.0, 0.0, 0.011764705882352941, 0.058823529411764705, 0.03137254901960784, 0.0, 0.0, 0.00392156862745098, 0.0, 0.0, 0.03529411764705882, 0.16470588235294117, 0.08235294117647059, 0.0, 0.0, 0.06274509803921569, 0.0196078431372549, 0.0, 0.06666666666666667, 0.2980392156862745, 0.1607843137254902, 0.050980392156862744, 0.043137254901960784, 0.25857142857142856, 0.25857142857142856, 0.25857142857142856]
+
+model = InnAiModel()
+
+#model.load_state_dict(torch.load("./trained_models/salmon_swirl/3/60740723-5ce0-4989-9d79-ecf4c436a029.pt"))
+model.load_state_dict(torch.load("./checkpoints/model.pt"))
+
+input = Variable(torch.tensor(data))
+
+result = list(model(input).data.cpu().numpy())
 
 
-# print(len(dataset))
-# image, levels, prediction = dataset.__getitem__(5)
+print([i * 700 for i in result])
 
-model = torch.load('./checkpoints/model.pt')
-
+# [
+#     181,
+#     181,
+#     181,
+#     180,
+#     175,
+#     173,
+#     166,
+#     168,
+#     178,
+#     181,
+#     182,
+#     182,
+#     182,
+#     182,
+#     182,
+#     181,
+#     179,
+#     179,
+#     180,
+#     180,
+#     180,
+#     180,
+#     182,
+#     186
+#   ]

@@ -8,14 +8,33 @@ import numpy as np
 from dtos.innai_data_dto import InnAiDto, InnAiItemDto
 
 
+def normalize(input, min: int, max: int) -> List[float]:
+    out = []
+
+    for item in input:
+        out.append((item - min) / (max - min))
+
+    return out
+
+
 class InnAiDataSet(Dataset):
-    def __init__(self):
+    def __init__(self, imageSize: int):
         file = open('./data/data.json')
         data = json.load(file)
+        self.imageSize = imageSize
 
         innAiDto = InnAiDto.from_json(data)
 
-        self.precipitationMaps = torch.tensor([np.array(item.precipitation_map_small).flatten() for item in innAiDto.items], dtype=torch.float32)
+        if imageSize == 8:
+            self.precipitationMaps = torch.tensor([np.array(item.precipitation_map_small).flatten() for item in innAiDto.items], dtype=torch.float32)
+        elif imageSize == 16:
+            self.precipitationMaps = torch.tensor(
+                [np.array(item.precipitation_map_medium).flatten() for item in innAiDto.items], dtype=torch.float32)
+        elif imageSize == 32:
+            self.precipitationMaps = torch.tensor(
+                [np.array(item.precipitation_map_large).flatten() for item in innAiDto.items], dtype=torch.float32)
+
+
 
         innLevels: List[int] = []
         nextInnLevels: List[int] = []
@@ -38,16 +57,9 @@ class InnAiDataSet(Dataset):
 
     def __getitem__(self, index):
         return (self.precipitationMaps[index],
-                torch.tensor(self.normalize(self.innLevels[index], 0, 500)),
-                torch.tensor(self.normalize(self.nextInnLevels[index], 0, 500)))
+                torch.tensor(normalize(self.innLevels[index], 0, 700)),
+                torch.tensor(normalize(self.nextInnLevels[index], 0, 700)))
 
     def __len__(self):
         return len(self.precipitationMaps)
 
-    def normalize(self, input, min: int, max: int) -> List[float]:
-        out = []
-
-        for item in input:
-            out.append((item - min) / (max - min))
-
-        return out
