@@ -144,3 +144,8 @@ InnAI is an attempt to predict water level values using precipitation data with 
         <th>Average evaluation loss (denormalized)</th>
     </tr>
 </table>
+
+## Overall Model Performance
+<p align="center">
+    <img src="./images/model_performance.png" width="700"/>
+</p>
