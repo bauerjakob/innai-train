@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using InnAi.Core;
 using InnAiServer.Data.Collections;
 using InnAiServer.Dtos;
 using InnAiServer.Models;
@@ -22,13 +21,13 @@ public class AiModelService : IAiModelService
         _rainRadarService = rainRadarService;
     }
     
-    public async Task<TrainingData> GetTrainingDataAsync(int count, int predictHours)
+    public async Task<TrainingDataDto> GetTrainingDataAsync(int count, int predictHours)
     {
         var rainRadarIds = await _rainRadarService.GetLastIdAsync(count);
 
         var stations = _innLevelService.GetInnStations().Select(x => x.Name);
 
-        ConcurrentBag<TrainingDataItem> items = new ();
+        ConcurrentBag<TrainingDataItemDto> items = new ();
 
         int index = 0;
 
@@ -37,21 +36,21 @@ public class AiModelService : IAiModelService
             var rainRadar = await _rainRadarService.GetAsync(id);
 
             _logger.LogInformation("GetTrainingDataAsync - {0}/{1}", ++index, rainRadarIds.Length);
-            List<InnAi.Core.InnLevel> innLevels = new();
-            List<NextInnLevel> nextInnLevelDtos = new();
+            List<InnLevelDto> innLevels = new();
+            List<NextInnLevelDto> nextInnLevelDtos = new();
             try
             {
                 foreach (var station in stations)
                 {
                     var innLevel = await GetMatchingWaterLevelAsync(station, rainRadar.Timestamp, predictHours, station == "RosenheimAboveMangfall");
-                    innLevels.Add(new InnAi.Core.InnLevel(innLevel.CurrentLevel.Value, station));
+                    innLevels.Add(new InnLevelDto(innLevel.CurrentLevel.Value, station));
 
                     if (station == "RosenheimAboveMangfall")
                     {
                         nextInnLevelDtos = innLevel
                             .NextLevels
                             .Select(x => 
-                                new NextInnLevel(x.Value, (int)(x.Timestamp - innLevel.CurrentLevel.Timestamp).TotalHours)).ToList();
+                                new NextInnLevelDto(x.Value, (int)(x.Timestamp - innLevel.CurrentLevel.Timestamp).TotalHours)).ToList();
                     }
                 }
             }
@@ -66,11 +65,11 @@ public class AiModelService : IAiModelService
             var dataMedium = ParseData(rainRadar.ValuesRainMedium);
             var dataSmall = ParseData(rainRadar.ValuesRainSmall);
 
-            var dateItem = new TrainingDataItem(rainRadar.Timestamp, innLevels.ToArray(), rainRadar.Id.ToString(), dataLarge, dataMedium, dataSmall, nextInnLevelDtos.ToArray());
+            var dateItem = new TrainingDataItemDto(rainRadar.Timestamp, innLevels.ToArray(), rainRadar.Id.ToString(), dataLarge, dataMedium, dataSmall, nextInnLevelDtos.ToArray());
             items.Add(dateItem);
         });
         
-        return new TrainingData(items.Count, items.ToArray());
+        return new TrainingDataDto(items.Count, items.ToArray());
     }
 
     private double[][] ParseData(double[,] data)

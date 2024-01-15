@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using InnAi.Core;
 using InnAiServer.Data.Collections;
 using InnAiServer.Data.Repositories;
+using InnAiServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.IO;
 
@@ -36,17 +36,17 @@ public class FileController : ControllerBase
             return BadRequest();
         }
 
-        var ret = new List<TrainingDataItem>();
+        var ret = new List<TrainingDataItemDto>();
 
 
         foreach (var sample in fileSamples)
         {
             var stream = new MemoryStream(sample.Data);
-            var data =  await JsonSerializer.DeserializeAsync<TrainingDataItem[]>(stream);
+            var data =  await JsonSerializer.DeserializeAsync<TrainingDataItemDto[]>(stream);
             ret.AddRange(data);
         }
 
-        var trainingData = new TrainingData(ret.Count, ret.ToArray());
+        var trainingData = new TrainingDataDto(ret.Count, ret.ToArray());
 
         var json = JsonSerializer.Serialize(trainingData);
 

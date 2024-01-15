@@ -1,5 +1,4 @@
 using System.Text.Json;
-using InnAi.Core;
 using InnAiServer.Converters;
 using InnAiServer.Data.Collections;
 using InnAiServer.Data.Repositories;
@@ -66,10 +65,10 @@ public class AiModelController : ControllerBase
         return Ok(new FileResultDto(fileId));
     }
 
-    private List<List<TrainingDataItem>> SampleData(TrainingDataItem[] data)
+    private List<List<TrainingDataItemDto>> SampleData(TrainingDataItemDto[] data)
     {
-        List<List<TrainingDataItem>> result = new();
-        List<TrainingDataItem> sample = new();
+        List<List<TrainingDataItemDto>> result = new();
+        List<TrainingDataItemDto> sample = new();
         for (int i = 0; i < data.Length; i++)
         {
             if (i % 1000 == 0 && sample.Count != 0)
