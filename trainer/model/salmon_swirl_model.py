@@ -3,11 +3,9 @@ import torch
 import torch.nn.functional as F
 from torchvision.transforms import Normalize
 
-
-
 class SalmonSwirl(nn.Module):
     def __init__(self):
-        super(SalmonSwirl, self).__init__()
+        super(InnAiModel, self).__init__()
         self.lin1 = nn.Linear(67, 50)
         self.lin2 = nn.Linear(50, 50)
         self.lin3 = nn.Linear(50, 30)

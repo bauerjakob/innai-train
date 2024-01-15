@@ -8,10 +8,10 @@ import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
 
-from model.roach_river_model import RoachRiverModel
+from model.salmon_swirl_model import SalmonSwirlModel
 from trainer import Trainer
 
-model = InnAiModel()
+model = SalmonSwirlModel()
 # optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.1)
 optimizer = optim.Adagrad(model.parameters(), lr=0.001, weight_decay=1e-4, lr_decay=0.00001)
 loss_function = nn.MSELoss()
