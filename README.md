@@ -10,7 +10,7 @@ InnAI is an attempt to predict water level values using precipitation data with 
 ## All InnAi Projects
 <table>
     <tr>
-        <th>Model</th>
+        <th>Project</th>
         <th>Link</th>
         <th>Short description</th>
     </tr>
